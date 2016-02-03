@@ -2,12 +2,12 @@
 #----------------------------------------------
 # Version : 2006033101
 # Writer  : Miko Cheng
-# Use for : ·í°h«Hµ¹icallvideo_cs®É, ±N°h«H¸ê°T°O¿ı©óDB02¤¤,
-#           ¥t¥~¤]±N­ì«H¥ó¦s©óMS01ªº«ü©w¥Ø¿ı¤¤
-# Host    : ms01 (±b¸¹ : icall_return)
-# Progress: °h«H --> icallvideo_cs --> icall_step1 & icall_step2 -->
-#           °õ¦æ«H¥ó¤ÀªRµ{¦¡(icall_step1) ¤ÀªR °h«H¤º®e(icall_step2) -->
-#           ±N¸ê°T¼g¤J db02.aptg.net	
+# Use for : ç•¶é€€ä¿¡çµ¦icallvideo_csæ™‚, å°‡é€€ä¿¡è³‡è¨Šè¨˜éŒ„æ–¼DB02ä¸­,
+#           å¦å¤–ä¹Ÿå°‡åŸä¿¡ä»¶å­˜æ–¼MS01çš„æŒ‡å®šç›®éŒ„ä¸­
+# Host    : ms01 (å¸³è™Ÿ : icall_return)
+# Progress: é€€ä¿¡ --> icallvideo_cs --> icall_step1 & icall_step2 -->
+#           åŸ·è¡Œä¿¡ä»¶åˆ†æç¨‹å¼(icall_step1) åˆ†æ é€€ä¿¡å…§å®¹(icall_step2) -->
+#           å°‡è³‡è¨Šå¯«å…¥ db02.aptg.net	
 #-----------------------------------------------
 # icallvideo_cs   .forward: 
 # ipvoip-apol@apol.com.tw;jill@apol.com.tw;ccleader-apol@aptg.com.tw;icall_step1@aptg.net;icall_step2@aptg.net
@@ -18,16 +18,16 @@
 use strict;
 use DBI;
 
-sleep 3;  #«OÀI°_¨£,¬°¤FÅı«H¥ó¥ı¼g¶i¨Ó,©Ò¥H¥ı¼È°±N¬í«á¦A¶}©l¤ÀªR«H¥ó
+sleep 3;  #ä¿éšªèµ·è¦‹,ç‚ºäº†è®“ä¿¡ä»¶å…ˆå¯«é€²ä¾†,æ‰€ä»¥å…ˆæš«åœNç§’å¾Œå†é–‹å§‹åˆ†æä¿¡ä»¶
 
 my $time = localtime(time());
 
-my $db02_host = 'db02.aptg.net';
-my $db02_user = 'rmail';
-my $db02_passwd = 'LykCR3t1';
+my $db02_host = 'db02';
+my $db02_user = '';
+my $db02_passwd = '';
 my $db02_db = 'mail_db';
 
-# »s§@¤ë¾äÂø´ê
+# è£½ä½œæœˆæ›†é›œæ¹Š
 my %monthNums = qw(
     Jan  01 Feb  02 Mar  03 Apr  04 May  05 Jun 06 
     Jul  07 Aug  08 Sep  09 Oct  10 Nov 11 Dec 12);
@@ -41,7 +41,7 @@ my $dbh = DBI->connect($dsn, $db02_user, $db02_passwd) || die_db($!);
 
 open LOG,">>$log_file" or die "can't open $log_file\n";
 
-# §ì¨ú«H¥ó¤º®e
+# æŠ“å–ä¿¡ä»¶å…§å®¹
 my @files = glob "$mdir/*";
 if (scalar @files == 0) {
 	  print LOG "--------------------------------------------\n";
@@ -51,28 +51,28 @@ if (scalar @files == 0) {
 
 opendir DH, $mdir or die "Error: Can't open $mdir\n";
 foreach (readdir DH) {
-	  my $total_line; #¥ı±N total_line «Ø¥ß¦b foreach °Ï¶ôÅÜ¼Æ§@¥Î½d³ò¤º
+	  my $total_line; #å…ˆå°‡ total_line å»ºç«‹åœ¨ foreach å€å¡Šè®Šæ•¸ä½œç”¨ç¯„åœå…§
 	  next if $_ eq "." or $_ eq "..";
 		my $ab_bounce_file = $mdir.'/'.$_;
 		open FH, $ab_bounce_file or die "Error: can't open $ab_bounce_file\n";
     while(<FH>) { $total_line = $total_line.$_; }
 		close (FH);
 		
-# §ì $recipient »P $main_domain
+# æŠ“ $recipient èˆ‡ $main_domain
     my($recipient) = ($total_line =~ /\nFinal-Recipient: rfc.*; (.*)\n/m);
 		(my $mail_domain = $recipient) =~ s/^.*@//;
 
-# §ì $deliver_time
+# æŠ“ $deliver_time
 		my($day, $month_c, $year, $hour, $minute, $second)
 		 	= ($total_line =~ /\nDate:.*,\s+(\d+) (\w\w\w) (\d+) (\d+):(\d+):(\d+) \+0800/m);
 		my $month = $monthNums{$month_c};
 		my $deliver_time = sprintf("%4d%02d%02d%02d%02d%02d", $year, $month, $day, $hour, $minute, $second);
 
-# §ì $reason
+# æŠ“ $reason
 		(my $total_no_line = $total_line) =~ s/\n//g;
     my($reason) = ($total_no_line =~ /Diagnostic-Code:.*Sachiel; (.*)Content-Description/);
 
-# ¦L¥X©Ò¦³¸ê®Æ
+# å°å‡ºæ‰€æœ‰è³‡æ–™
 		print LOG <<End_of_Log;
 -------------------------------------------
 $time  open $ab_bounce_file
@@ -82,11 +82,11 @@ $time  \$deliver_time:$deliver_time
 $time  \$reason:$reason
 End_of_Log
 
-# ¼g¤J¸ê®Æ®w
+# å¯«å…¥è³‡æ–™åº«
 		my $sqlstmt = sprintf("INSERT INTO icall (deliver_time,bounce_time,recipient,reason,mail_domain) VALUES( '%s',NOW(),'%s','%s','%s')",$deliver_time, $recipient, $reason, $mail_domain);
     $dbh->do($sqlstmt);
 
-# ·h²¾°h«H¦Ü MS01 ªº$reserve_bounce_dir/$eml_file ¥H§Q VOIP ­û¤u¤U¸ü°h«H°T®§.
+# æ¬ç§»é€€ä¿¡è‡³ MS01 çš„$reserve_bounce_dir/$eml_file ä»¥åˆ© VOIP å“¡å·¥ä¸‹è¼‰é€€ä¿¡è¨Šæ¯.
   $sqlstmt = sprintf("SELECT sn FROM icall WHERE deliver_time='%s' AND recipient='%s'", $deliver_time, $recipient);
                 print LOG "$time  $sqlstmt\n";
 		my $sth = $dbh->prepare($sqlstmt);
@@ -95,7 +95,7 @@ End_of_Log
 			  print LOG "$time  Can't find bounce file, exit!!\n";
 				system "rm -f $mdir/*";
 				$dbh->disconnect();
-				exit 0; #§ä¤£¨ì sn ,¥Nªí°h«Hªº«H¥ó¦³°İÃD
+				exit 0; #æ‰¾ä¸åˆ° sn ,ä»£è¡¨é€€ä¿¡çš„ä¿¡ä»¶æœ‰å•é¡Œ
     } else {
 			  (my $sn) = ($sth->fetchrow_array)[0];
         my $eml_file = $sn.'.eml';
@@ -107,8 +107,8 @@ End_of_Log
 				my $cmd_result=`chown rmail $reserve_bounce_dir/$eml_file 2>&1`;
 				print LOG "$time  cmd result2:$cmd_result\n";
 
-				#¬°¤F«OÀI°_¨£,³B²z§¹©Ò¦³¬yµ{«á,±N©Ò¦³icall_step2¥Ø¿ı¸Ì¤£¥²­nªºÀÉ®×¥ş§R±¼
-        #¥H§KÅª¨ì­«ÂĞªº«H¥ó (²z½×¤W¨Ó»¡,¬O¤£¥Î°µ³o¤@¨BÆJ),Just for robust!
+				#ç‚ºäº†ä¿éšªèµ·è¦‹,è™•ç†å®Œæ‰€æœ‰æµç¨‹å¾Œ,å°‡æ‰€æœ‰icall_step2ç›®éŒ„è£¡ä¸å¿…è¦çš„æª”æ¡ˆå…¨åˆªæ‰
+        #ä»¥å…è®€åˆ°é‡è¦†çš„ä¿¡ä»¶ (ç†è«–ä¸Šä¾†èªª,æ˜¯ä¸ç”¨åšé€™ä¸€æ­¥é©Ÿ),Just for robust!
 				system "rm -f $mdir/*";
     }
     undef($total_line);
