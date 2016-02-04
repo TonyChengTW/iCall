@@ -12,7 +12,7 @@ use Date::Calc qw(Add_Delta_Days Delta_Days);
 
 $db_host = '210.200.211.4';
 $db_user = 'rmail';
-$db_passwd = 'LykCR3t1';
+$db_passwd = 'xxxxxxx';
 
 $cgi = new CGI;
 $Begyy = $cgi->param('Begyy');
